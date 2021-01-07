@@ -54,4 +54,4 @@ Add a cron.d job that sends an incremental snapshot from your main host? to a ba
   PATH="/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
   
   # Every 1 day  3am 
-  0 3 * * *      root which zfs-auto-snapshot2 > /dev/null || exit 0 ; zfs-auto-snapshot2 --quiet --syslog --keep=30 --event=backups --recv-opts=-u --prefix=shadow --label=daily --verbose --send-incr=trunk/PATH shadow/PATH
+  0 3 * * *      root which zfs-auto-snapshot > /dev/null || exit 0 ; zfs-auto-snapshot --quiet --syslog --keep=30 --event=backups --recv-opts=-u --prefix=shadow --label=daily --verbose --send-incr=trunk/PATH shadow/PATH

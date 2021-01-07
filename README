@@ -19,3 +19,39 @@ wget https://github.com/ArakniD/zfs-auto-snapshot/archive/master.zip
 unzip master.zip
 cd zfs-auto-snapshot-master
 make install
+
+Usage:
+------
+
+Samba and "Previous Versions":
+------------------------------
+
+Configure Cron.d job such that there are individual labels for each time increment;
+
+  PATH="/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+  
+  # Every 15 minutes (skip hourly)
+  15,30,45 * * * * root which zfs-auto-snapshot > /dev/null || exit 0 ; zfs-auto-snapshot --quiet --syslog --label=00 --keep=6  trunk/PATH
+  # Every 1 hour (skip midnight)
+  0 1-23 * * *     root which zfs-auto-snapshot > /dev/null || exit 0 ; zfs-auto-snapshot --quiet --syslog --label=01 --keep=23 trunk/PATH
+
+Configure your samba config file so that the label and the date-time are what makes up your uniquie index, UTC date time
+
+  [ShareName]
+    vfs objects = shadow_copy2
+    shadow: snapdir = .zfs/snapshot
+    shadow: sort = desc
+    shadow: format = zfs-auto-snap_%S-%Y-%m-%d-%H%M
+    shadow: localtime = no
+
+Also configure the .zfs folder to be visible in the filesystem to enable the "Right Click -> Previous Versions" dialog to work in Windows.
+
+Snapshow Send / Recv to local or Remote host:
+--------------------------------------------
+
+Add a cron.d job that sends an incremental snapshot from your main host? to a backup or shadow host
+
+  PATH="/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+  
+  # Every 1 day  3am 
+  0 3 * * *      root which zfs-auto-snapshot2 > /dev/null || exit 0 ; zfs-auto-snapshot2 --quiet --syslog --keep=30 --event=backups --recv-opts=-u --prefix=shadow --label=daily --verbose --send-incr=trunk/PATH shadow/PATH
